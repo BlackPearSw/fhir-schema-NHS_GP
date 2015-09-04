@@ -1,5 +1,13 @@
 # fhir-schema-NHS_GP
 
+JSON schema v4 schemas for [NHS GPSoC IM2 FHIR resources](http://developer.nhs.uk/downloads-data/fhir-resource-definitions-library/),
+bundled with tv4 validator. Includes schemas for the following profiles:
+
+- Patient demographics
+  - GP Patient
+  - General Practitioner
+  - GP Practice
+
 ## Prerequisites
 
 Node.JS v0.12.*
@@ -20,7 +28,7 @@ Tests can be run using:
 
     var NHS_GP = require('NHS_GP');
 
-    var validator = new NHS_GP.Validator(NHS_GP.profiles.Patient, NHS_GP.formats);
+    var validator = new NHS_GP.Validator(NHS_GP.profiles.demographics.GP_Patient, NHS_GP.formats);
 
     var patient = {
         id: '123456789',

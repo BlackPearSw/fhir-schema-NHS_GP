@@ -1,6 +1,6 @@
 {
   "name": "fhir-schema-NHS_GP",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "JSON schema v4 schemas for FHIR NHS_GP profiles",
   "license": "MIT",
   "repository": {
