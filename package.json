@@ -1,0 +1,23 @@
+{
+  "name": "fhir-schema-NHS_GP",
+  "version": "0.0.1",
+  "description": "JSON schema v4 schemas for FHIR NHS_GP profiles",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tbc.git"
+  },
+  "dependencies": {
+    "fhir-schema-dstu2": "BlackPearSw/fhir-schema-dstu2",
+    "lodash": "^3.10.1",
+    "require-directory": "^2.1.1"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5",
+    "tv4": "^1.1.12"
+  },
+  "scripts": {
+    "test": "mocha ./tests --recursive"
+  }
+}
