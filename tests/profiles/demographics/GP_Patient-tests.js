@@ -1,11 +1,11 @@
 var FHIR_DSTU2 = require('fhir-schema-dstu2');
-var NHS_GP = require('../../lib');
-var profile = NHS_GP.profiles.Patient;
+var NHS_GP = require('../../../lib/index');
+var profile = NHS_GP.profiles.demographics.GP_Patient;
 
 var expect = require('chai').expect;
 
-describe('Patient', function () {
-    var resource;
+describe('GP Patient', function () {
+    var data;
     var validator;
 
     before(function () {
@@ -13,7 +13,7 @@ describe('Patient', function () {
     });
 
     beforeEach(function () {
-        resource = {
+        data = {
             id: '123456789',
             meta: {
                 versionId: '1',
@@ -67,7 +67,7 @@ describe('Patient', function () {
     });
 
     it('validates resource', function () {
-        var result = validator.validate(resource);
+        var result = validator.validate(data);
 
         if (!result.valid) {
             console.log(result);
@@ -78,25 +78,25 @@ describe('Patient', function () {
 
     describe('identifier', function () {
         it('must be present', function () {
-            delete resource.identifier;
+            delete data.identifier;
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
 
         it('must include NHS Number', function () {
-            resource.identifier[0].system = 'urn:fhir.nhs.uk:id/NHSNumberXX';
+            data.identifier[0].system = 'urn:fhir.nhs.uk:id/NHSNumberXX';
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
 
         it('must have a value', function () {
-            delete resource.identifier[0].value;
+            delete data.identifier[0].value;
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
@@ -104,17 +104,17 @@ describe('Patient', function () {
 
     describe('name', function () {
         it('must be present', function () {
-            delete resource.name;
+            delete data.name;
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
 
         it('must include at least one name', function () {
-            resource.name = [];
+            data.name = [];
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
@@ -122,9 +122,9 @@ describe('Patient', function () {
 
     describe('gender', function () {
         it('must be present', function () {
-            delete resource.gender;
+            delete data.gender;
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
@@ -132,9 +132,9 @@ describe('Patient', function () {
 
     describe('birthDate', function () {
         it('must be present', function () {
-            delete resource.birthDate;
+            delete data.birthDate;
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
@@ -142,17 +142,17 @@ describe('Patient', function () {
 
     describe('maritalStatus', function () {
         it('must use system ' + NHS_GP.registry.valueSets.MaritalStatus.uri, function () {
-            resource.maritalStatus.coding[0].system = NHS_GP.registry.valueSets.MaritalStatus.uri + 'xx';
+            data.maritalStatus.coding[0].system = NHS_GP.registry.valueSets.MaritalStatus.uri + 'xx';
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
 
         it('must use value from system ' + NHS_GP.registry.valueSets.MaritalStatus.uri, function () {
-            resource.maritalStatus.coding[0].code = 'Married';
+            data.maritalStatus.coding[0].code = 'Married';
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
@@ -160,17 +160,17 @@ describe('Patient', function () {
 
     describe('religion', function () {
         it('must use system ' + NHS_GP.registry.valueSets.ReligionGroup.uri, function () {
-            resource.religion.coding[0].system = NHS_GP.registry.valueSets.ReligionGroup.uri + 'xx';
+            data.religion.coding[0].system = NHS_GP.registry.valueSets.ReligionGroup.uri + 'xx';
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
 
         it('must use value from system ' + NHS_GP.registry.valueSets.ReligionGroup.uri, function () {
-            resource.religion.coding[0].code = 'Jedi';
+            data.religion.coding[0].code = 'Jedi';
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
@@ -178,17 +178,17 @@ describe('Patient', function () {
 
     describe('ethnicity', function () {
         it('must use system ' + NHS_GP.registry.valueSets.Ethnicity.uri, function () {
-            resource.ethnicity.coding[0].system = NHS_GP.registry.valueSets.Ethnicity.uri + 'xx';
+            data.ethnicity.coding[0].system = NHS_GP.registry.valueSets.Ethnicity.uri + 'xx';
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
 
         it('must use value from system ' + NHS_GP.registry.valueSets.Ethnicity.uri, function () {
-            resource.ethnicity.coding[0].code = 'Jedi';
+            data.ethnicity.coding[0].code = 'Jedi';
 
-            var result = validator.validate(resource);
+            var result = validator.validate(data);
 
             expect(result.valid).to.be.false;
         });
