@@ -1,15 +1,15 @@
-var FHIR_DSTU2 = require('fhir-schema-dstu2');
+var fhir = require('fhir-schema-dstu2');
 var NHS_GP = require('../../../lib/index');
-var profile = NHS_GP.profiles.demographics.GP_Patient;
 
 var expect = require('chai').expect;
 
 describe('GP Patient', function () {
     var data;
     var validator;
+    var schema = NHS_GP.profiles.demographics.GP_Patient;
 
     before(function () {
-        validator = new FHIR_DSTU2.Validator(profile, NHS_GP.formats);
+        validator = new fhir.Validator(fhir.schema, NHS_GP.formats);
     });
 
     beforeEach(function () {
@@ -67,7 +67,7 @@ describe('GP Patient', function () {
     });
 
     it('validates resource', function () {
-        var result = validator.validate(data);
+        var result = validator.validate(data, schema);
 
         if (!result.valid) {
             console.log(result);
@@ -80,7 +80,7 @@ describe('GP Patient', function () {
         it('must be present', function () {
             delete data.identifier;
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -88,7 +88,7 @@ describe('GP Patient', function () {
         it('must include NHS Number', function () {
             data.identifier[0].system = 'urn:fhir.nhs.uk:id/NHSNumberXX';
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -96,7 +96,7 @@ describe('GP Patient', function () {
         it('must have a value', function () {
             delete data.identifier[0].value;
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -106,7 +106,7 @@ describe('GP Patient', function () {
         it('must be present', function () {
             delete data.name;
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -114,7 +114,7 @@ describe('GP Patient', function () {
         it('must include at least one name', function () {
             data.name = [];
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -124,7 +124,7 @@ describe('GP Patient', function () {
         it('must be present', function () {
             delete data.gender;
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -134,7 +134,7 @@ describe('GP Patient', function () {
         it('must be present', function () {
             delete data.birthDate;
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -144,7 +144,7 @@ describe('GP Patient', function () {
         it('must use system ' + NHS_GP.registry.valueSets.MaritalStatus.uri, function () {
             data.maritalStatus.coding[0].system = NHS_GP.registry.valueSets.MaritalStatus.uri + 'xx';
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -152,7 +152,7 @@ describe('GP Patient', function () {
         it('must use value from system ' + NHS_GP.registry.valueSets.MaritalStatus.uri, function () {
             data.maritalStatus.coding[0].code = 'Married';
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -162,7 +162,7 @@ describe('GP Patient', function () {
         it('must use system ' + NHS_GP.registry.valueSets.ReligionGroup.uri, function () {
             data.religion.coding[0].system = NHS_GP.registry.valueSets.ReligionGroup.uri + 'xx';
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -170,7 +170,7 @@ describe('GP Patient', function () {
         it('must use value from system ' + NHS_GP.registry.valueSets.ReligionGroup.uri, function () {
             data.religion.coding[0].code = 'Jedi';
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -180,7 +180,7 @@ describe('GP Patient', function () {
         it('must use system ' + NHS_GP.registry.valueSets.Ethnicity.uri, function () {
             data.ethnicity.coding[0].system = NHS_GP.registry.valueSets.Ethnicity.uri + 'xx';
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -188,10 +188,54 @@ describe('GP Patient', function () {
         it('must use value from system ' + NHS_GP.registry.valueSets.Ethnicity.uri, function () {
             data.ethnicity.coding[0].code = 'Jedi';
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
+    });
+
+    it('must not have photo', function () {
+        data.photo = [];
+
+        var result = validator.validate(data, schema);
+
+        expect(result.valid).to.be.false;
+    });
+
+    it('must not have animal', function () {
+        data.animal = {
+            species: {}
+        };
+
+        var result = validator.validate(data, schema);
+
+        expect(result.valid).to.be.false;
+    });
+
+    it('must not have managingOrganization', function () {
+        data.managingOrganization = {
+            display: 'Health org'
+        };
+
+        var result = validator.validate(data, schema);
+
+        expect(result.valid).to.be.false;
+    });
+
+    it('must not have link', function () {
+        data.link = [];
+
+        var result = validator.validate(data, schema);
+
+        expect(result.valid).to.be.false;
+    });
+
+    it('must not have active', function () {
+        data.active = true;
+
+        var result = validator.validate(data, schema);
+
+        expect(result.valid).to.be.false;
     });
 
 });

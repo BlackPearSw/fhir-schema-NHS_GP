@@ -1,15 +1,15 @@
-var FHIR_DSTU2 = require('fhir-schema-dstu2');
+var fhir = require('fhir-schema-dstu2');
 var NHS_GP = require('../../../lib/index');
-var profile = NHS_GP.profiles.demographics.General_Practitioner;
 
 var expect = require('chai').expect;
 
 describe('General Practitioner', function () {
     var data;
     var validator;
+    var schema = NHS_GP.profiles.demographics.General_Practitioner;
 
     before(function () {
-        validator = new FHIR_DSTU2.Validator(profile, NHS_GP.formats);
+        validator = new fhir.Validator(fhir.schema, NHS_GP.formats);
     });
 
     beforeEach(function () {
@@ -26,7 +26,7 @@ describe('General Practitioner', function () {
     });
 
     it('validates resource', function () {
-        var result = validator.validate(data);
+        var result = validator.validate(data, schema);
 
         if (!result.valid) {
             console.log(result);
@@ -39,7 +39,7 @@ describe('General Practitioner', function () {
         it('must be present', function () {
             delete data.identifier;
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -47,7 +47,7 @@ describe('General Practitioner', function () {
         it('must include GP PPD Code', function () {
             data.identifier[0].system = 'urn:fhir.nhs.uk:id/NHSNumberXX';
 
-            var result = validator.validate(data);
+            var result = validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
