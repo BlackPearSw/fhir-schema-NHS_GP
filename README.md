@@ -14,7 +14,7 @@ Node.JS v0.12.*
 
 ## Install
 
-Install repository from github:
+Install package from github:
 
     $ npm install BlackPearSw/fhir-schema-NHS_GP
 
@@ -27,8 +27,6 @@ Tests can be run using:
 ## Use
 
     var NHS_GP = require('NHS_GP');
-
-    var validator = new NHS_GP.Validator(NHS_GP.profiles.demographics.GP_Patient, NHS_GP.formats);
 
     var patient = {
         id: '123456789',
