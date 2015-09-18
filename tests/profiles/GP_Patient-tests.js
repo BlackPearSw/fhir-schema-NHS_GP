@@ -1,16 +1,11 @@
 var fhir = require('fhir-schema-dstu2');
-var NHS_GP = require('../../../lib/index');
+var NHS_GP = require('../../lib/index');
 
 var expect = require('chai').expect;
 
 describe('GP Patient', function () {
     var data;
-    var validator;
-    var schema = NHS_GP.profiles.demographics.GP_Patient;
-
-    before(function () {
-        validator = new fhir.Validator(fhir.schema, NHS_GP.formats);
-    });
+    var schema = NHS_GP.profiles.GP_Patient;
 
     beforeEach(function () {
         data = {
@@ -23,7 +18,7 @@ describe('GP Patient', function () {
             identifier: [
                 {
                     use: 'usual',
-                    system: NHS_GP.registry.identifiers.NHSNumber.uri,
+                    system: 'urn:fhir.nhs.uk:id/NHSNumber',
                     value: '4123456789'
                 }
             ],
@@ -38,20 +33,20 @@ describe('GP Patient', function () {
             birthDate: '1980-04-12',
             maritalStatus: {
                 coding: [{
-                    system: NHS_GP.registry.valueSets.MaritalStatus.uri,
-                    code: NHS_GP.registry.valueSets.MaritalStatus.codes[0]
+                    system: 'urn:fhir.nhs.uk:vs/MaritalStatus',
+                    code: 'M'
                 }]
             },
             religion: {
                 coding: [{
-                    system: NHS_GP.registry.valueSets.ReligionGroup.uri,
-                    code: NHS_GP.registry.valueSets.ReligionGroup.codes[0]
+                    system: 'urn:fhir.nhs.uk:vs/ReligionGroup',
+                    code: 'C'
                 }]
             },
             ethnicity: {
                 coding: [{
-                    system: NHS_GP.registry.valueSets.Ethnicity.uri,
-                    code: NHS_GP.registry.valueSets.Ethnicity.codes[0]
+                    system: 'urn:fhir.nhs.uk:vs/Ethnicity',
+                    code: 'A'
                 }]
             },
             organDonor: true,
@@ -63,11 +58,11 @@ describe('GP Patient', function () {
                     code: 'GP-PMS'
                 }]
             }
-        };
+        }
     });
 
     it('validates resource', function () {
-        var result = validator.validate(data, schema);
+        var result = fhir.validator.validate(data, schema);
 
         if (!result.valid) {
             console.log(result);
@@ -80,7 +75,7 @@ describe('GP Patient', function () {
         it('must be present', function () {
             delete data.identifier;
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -88,7 +83,7 @@ describe('GP Patient', function () {
         it('must include NHS Number', function () {
             data.identifier[0].system = 'urn:fhir.nhs.uk:id/NHSNumberXX';
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -96,9 +91,20 @@ describe('GP Patient', function () {
         it('must have a value', function () {
             delete data.identifier[0].value;
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
+        });
+
+        it('must allow additional identifiers', function () {
+            data.identifier.push({
+                system: 'http://health.org/id',
+                value: '123'
+            });
+
+            var result = fhir.validator.validate(data, schema);
+
+            expect(result.valid).to.be.true;
         });
     });
 
@@ -106,7 +112,7 @@ describe('GP Patient', function () {
         it('must be present', function () {
             delete data.name;
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -114,7 +120,7 @@ describe('GP Patient', function () {
         it('must include at least one name', function () {
             data.name = [];
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -124,7 +130,7 @@ describe('GP Patient', function () {
         it('must be present', function () {
             delete data.gender;
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -134,61 +140,72 @@ describe('GP Patient', function () {
         it('must be present', function () {
             delete data.birthDate;
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
     });
 
     describe('maritalStatus', function () {
-        it('must use system ' + NHS_GP.registry.valueSets.MaritalStatus.uri, function () {
-            data.maritalStatus.coding[0].system = NHS_GP.registry.valueSets.MaritalStatus.uri + 'xx';
+        it('must use system urn:fhir.nhs.uk:vs/MaritalStatus', function () {
+            data.maritalStatus.coding[0].system = 'urn:fhir.nhs.uk:vs/MaritalStatusxx';
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
 
-        it('must use value from system ' + NHS_GP.registry.valueSets.MaritalStatus.uri, function () {
+        it('must use value from system urn:fhir.nhs.uk:vs/MaritalStatus', function () {
             data.maritalStatus.coding[0].code = 'Married';
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
+        });
+
+        it('must allow additional codes', function () {
+            data.maritalStatus.coding.push({
+                system: 'http://health.org/maritalstatus',
+                code: 'Married'
+            });
+
+            var result = fhir.validator.validate(data, schema);
+
+            expect(result.valid).to.be.true;
         });
     });
 
     describe('religion', function () {
-        it('must use system ' + NHS_GP.registry.valueSets.ReligionGroup.uri, function () {
-            data.religion.coding[0].system = NHS_GP.registry.valueSets.ReligionGroup.uri + 'xx';
+        it('must use system urn:fhir.nhs.uk:vs/ReligionGroup', function () {
+            data.religion.coding[0].system = 'urn:fhir.nhs.uk:vs/ReligionGroupxx';
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
 
-        it('must use value from system ' + NHS_GP.registry.valueSets.ReligionGroup.uri, function () {
+        it('must use value from system urn:fhir.nhs.uk:vs/ReligionGroup', function () {
             data.religion.coding[0].code = 'Jedi';
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
     });
 
     describe('ethnicity', function () {
-        it('must use system ' + NHS_GP.registry.valueSets.Ethnicity.uri, function () {
-            data.ethnicity.coding[0].system = NHS_GP.registry.valueSets.Ethnicity.uri + 'xx';
+        it('must use system urn:fhir.nhs.uk:vs/Ethnicity', function () {
+            data.ethnicity.coding[0].system = 'urn:fhir.nhs.uk:vs/Ethnicityxx';
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
 
-        it('must use value from system ' + NHS_GP.registry.valueSets.Ethnicity.uri, function () {
+        it('must use value from system urn:fhir.nhs.uk:vs/Ethnicity', function () {
             data.ethnicity.coding[0].code = 'Jedi';
 
-            var result = validator.validate(data, schema);
+            var result = fhir.validator.validate(data, schema);
 
             expect(result.valid).to.be.false;
         });
@@ -197,7 +214,7 @@ describe('GP Patient', function () {
     it('must not have photo', function () {
         data.photo = [];
 
-        var result = validator.validate(data, schema);
+        var result = fhir.validator.validate(data, schema);
 
         expect(result.valid).to.be.false;
     });
@@ -207,7 +224,7 @@ describe('GP Patient', function () {
             species: {}
         };
 
-        var result = validator.validate(data, schema);
+        var result = fhir.validator.validate(data, schema);
 
         expect(result.valid).to.be.false;
     });
@@ -217,7 +234,7 @@ describe('GP Patient', function () {
             display: 'Health org'
         };
 
-        var result = validator.validate(data, schema);
+        var result = fhir.validator.validate(data, schema);
 
         expect(result.valid).to.be.false;
     });
@@ -225,7 +242,7 @@ describe('GP Patient', function () {
     it('must not have link', function () {
         data.link = [];
 
-        var result = validator.validate(data, schema);
+        var result = fhir.validator.validate(data, schema);
 
         expect(result.valid).to.be.false;
     });
@@ -233,7 +250,7 @@ describe('GP Patient', function () {
     it('must not have active', function () {
         data.active = true;
 
-        var result = validator.validate(data, schema);
+        var result = fhir.validator.validate(data, schema);
 
         expect(result.valid).to.be.false;
     });
